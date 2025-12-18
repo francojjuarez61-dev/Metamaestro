@@ -1,358 +1,233 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>MetaMaestro</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>MetaMaestro</title>
 
-  <style>
-    :root{
-      --text:#f4f4f5;
-      --muted:rgba(255,255,255,.55);
+<style>
+:root{
+  --glass-bg: rgba(20,20,24,.55);
+  --glass-brd: rgba(255,255,255,.12);
+  --text: #f4f4f5;
+  --muted: rgba(255,255,255,.55);
+  --red: #ef4444;
+  --green: #22c55e;
+}
 
-      --glass: rgba(14, 14, 16, .40);
-      --glass2: rgba(14, 14, 16, .55);
-      --brd: rgba(255,255,255,.12);
+/* ===== FONDO ROJO CON RESPIRACIÓN ===== */
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(900px 520px at 50% 18%, rgba(239,68,68,.40) 0%, rgba(239,68,68,.12) 42%, transparent 70%),
+    radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,.0) 0%, rgba(0,0,0,.45) 58%, rgba(0,0,0,.88) 100%),
+    linear-gradient(180deg, #07070a, #0b0b10);
+  animation:bgBreath 10s ease-in-out infinite;
+  overflow-x:hidden;
+}
 
-      --red:#ef4444;
-      --red2:#fb7185;
-      --orange:#f97316;
-      --green:#22c55e;
-    }
+@keyframes bgBreath{
+  0%,100%{ filter:brightness(.92) contrast(1.05) saturate(1.1); }
+  50%{ filter:brightness(1.06) contrast(1.08) saturate(1.25); }
+}
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+/* ===== GLASS ===== */
+.glass{
+  background:var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border:1px solid var(--glass-brd);
+  border-radius:24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
 
-    /* ===== FONDO (SOLO ROJOS + NEGROS) ===== */
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      color:var(--text);
-      overflow-x:hidden;
+.container{
+  max-width:480px;
+  margin:0 auto;
+  padding:24px 16px 40px;
+}
 
-      /* Base oscura */
-      background:
-        /* brillo rojo centrado arriba */
-        radial-gradient(900px 520px at 50% 16%,
-          rgba(239,68,68,.42) 0%,
-          rgba(239,68,68,.18) 38%,
-          rgba(239,68,68,0) 70%),
+h1{
+  font-size:34px;
+  font-weight:900;
+  margin:8px 0 2px;
+}
+.subtitle{
+  color:var(--muted);
+  margin-bottom:18px;
+}
 
-        /* segundo glow cálido (sin violeta) */
-        radial-gradient(700px 520px at 55% 58%,
-          rgba(249,115,22,.16) 0%,
-          rgba(249,115,22,0) 65%),
+.segment{
+  display:flex;
+  background:rgba(0,0,0,.35);
+  border-radius:14px;
+  padding:4px;
+  margin-bottom:16px;
+}
+.segment button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:700;
+}
+.segment button.active{
+  background:var(--red);
+  color:white;
+}
 
-        /* viñeta negra fuerte a los bordes */
-        radial-gradient(1400px 900px at 50% 50%,
-          rgba(0,0,0,0) 0%,
-          rgba(0,0,0,.50) 58%,
-          rgba(0,0,0,.92) 100%),
+.label{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
 
-        /* fondo final */
-        linear-gradient(180deg, #07070a 0%, #0a0a0f 35%, #050506 100%);
+input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--glass-brd);
+  background:rgba(0,0,0,.35);
+  color:white;
+  font-size:16px;
+}
 
-      animation:bgBreath 10s ease-in-out infinite;
-    }
+input.green{
+  border-color:rgba(34,197,94,.4);
+  color:#bbf7d0;
+}
 
-    /* “Respira” (oscurece/aclara lento) */
-    @keyframes bgBreath{
-      0%,100%{ filter: brightness(.92) contrast(1.05) saturate(1.15); }
-      50%{ filter: brightness(1.05) contrast(1.07) saturate(1.25); }
-    }
+.section{
+  margin-bottom:18px;
+}
 
-    /* Un toque de “grano” MUY sutil, sin imágenes externas */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.08;
-      background-image:
-        radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px);
-      background-size: 3px 3px;
-      mix-blend-mode: overlay;
-    }
+.result{
+  font-size:32px;
+  font-weight:900;
+  margin:10px 0;
+}
 
-    .container{
-      max-width:520px;
-      margin:0 auto;
-      padding:22px 16px 44px;
-    }
+.progress{
+  height:14px;
+  background:rgba(255,255,255,.08);
+  border-radius:999px;
+  overflow:hidden;
+}
+.progress div{
+  height:100%;
+  background:linear-gradient(90deg,#dc2626,#ef4444,#f97316);
+  width:0%;
+  transition:width 1s ease;
+}
 
-    .header{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding-top:6px;
-      margin-bottom:14px;
-    }
-    .appIcon{
-      width:44px;height:44px;border-radius:14px;
-      background: linear-gradient(135deg, rgba(239,68,68,.95), rgba(127,29,29,.95));
-      display:grid;place-items:center;
-      box-shadow:0 16px 40px rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .appIcon svg{ width:22px;height:22px; fill:white; opacity:.95; }
-
-    h1{
-      margin:0;
-      font-size:34px;
-      font-weight:900;
-      letter-spacing:-.02em;
-      line-height:1.05;
-    }
-    .brandAccent{ color: var(--red2); }
-    .subtitle{
-      margin:2px 0 0;
-      color:var(--muted);
-      font-size:16px;
-    }
-
-    /* ===== GLASS ===== */
-    .glass{
-      background: var(--glass);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border:1px solid var(--brd);
-      border-radius:24px;
-      box-shadow: 0 20px 55px rgba(0,0,0,.35);
-    }
-
-    /* Segment control */
-    .seg{
-      display:flex;
-      gap:6px;
-      padding:6px;
-      border-radius:16px;
-      background: rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.10);
-      margin: 12px 0 16px;
-    }
-    .seg button{
-      flex:1;
-      border:none;
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:800;
-      color: rgba(255,255,255,.65);
-      background: transparent;
-      transition:.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .seg button.active{
-      background: rgba(239,68,68,.92);
-      color:white;
-      box-shadow: 0 12px 28px rgba(239,68,68,.20);
-    }
-
-    .card{
-      padding:16px;
-      margin-bottom:14px;
-    }
-    .label{
-      font-size:12px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color: rgba(255,255,255,.55);
-      margin-bottom:8px;
-      font-weight:800;
-    }
-
-    input{
-      width:100%;
-      border-radius:16px;
-      padding:14px 14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.35);
-      color:white;
-      outline:none;
-      font-size:16px;
-    }
-    input:focus{
-      border-color: rgba(255,255,255,.20);
-      box-shadow: 0 0 0 4px rgba(239,68,68,.12);
-    }
-    input.green{
-      border-color: rgba(34,197,94,.35);
-      color: #bbf7d0;
-    }
-
-    .resultBox{
-      padding:18px;
-      text-align:left;
-    }
-
-    .resultTitle{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:10px;
-    }
-    .resultTitle .small{
-      color: rgba(255,255,255,.55);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-    }
-
-    .result{
-      font-size:40px;
-      font-weight:1000;
-      letter-spacing:-.02em;
-      line-height:1.05;
-      word-break:break-word;
-    }
-
-    .progress{
-      margin-top:14px;
-      height:16px;
-      border-radius:999px;
-      overflow:hidden;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .progress > div{
-      height:100%;
-      width:0%;
-      transition: width 900ms ease;
-      background: linear-gradient(90deg, #7f1d1d, #ef4444, #f97316);
-      box-shadow: 0 0 22px rgba(239,68,68,.25);
-    }
-
-    .footer{
-      text-align:center;
-      margin-top:18px;
-      color: rgba(255,255,255,.35);
-      font-size:11px;
-    }
-  </style>
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:rgba(255,255,255,.35);
+  margin-top:24px;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
 
-    <div class="header">
-      <div class="appIcon" aria-hidden="true">
-        <!-- iconito bici simple -->
-        <svg viewBox="0 0 24 24">
-          <path d="M5.5 16.5a3.5 3.5 0 1 0 0 .1v-.1Zm13 0a3.5 3.5 0 1 0 0 .1v-.1ZM10.2 6.2l1.6 2.8h2.2l-1.2-2H10.2ZM9 4h3.8l1.9 3.2H18a1 1 0 0 1 0 2h-3.2l-2.2-3.7H10l-2 3.5h2.2a1 1 0 0 1 0 2H6.3l1.3-2.2L9 4Zm2.2 9.2 1.2 2.1a1 1 0 1 1-1.7 1l-1.7-3a1 1 0 0 1 .1-1.1l1.6-2.7a1 1 0 0 1 1.7 1l-1.2 2.1Z"/>
-        </svg>
-      </div>
-      <div>
-        <h1>Meta<span class="brandAccent">Maestro</span></h1>
-        <div class="subtitle">Control total sobre tus finanzas.</div>
-      </div>
-    </div>
+<div class="container">
 
-    <div class="seg">
-      <button id="btnTime" class="active">Calcular Fecha</button>
-      <button id="btnMoney">Calcular Ahorro</button>
-    </div>
+  <h1>Meta<span style="color:#ef4444">Maestro</span></h1>
+  <div class="subtitle">Control total sobre tus finanzas</div>
 
-    <div class="glass card">
-      <div class="label">Nombre de la meta</div>
-      <input id="goalName" value="Mi Nueva Moto" />
-    </div>
-
-    <div class="glass card">
-      <div class="label">Costo total ($)</div>
-      <input id="totalCost" type="number" inputmode="numeric" value="2500000" />
-    </div>
-
-    <div class="glass card">
-      <div class="label">Ya tenés ahorrado ($)</div>
-      <input id="currentSavings" class="green" type="number" inputmode="numeric" value="500000" />
-    </div>
-
-    <div class="glass card">
-      <div class="label" id="dynamicLabel">Ahorro por semana</div>
-      <input id="contribution" type="number" inputmode="numeric" value="50000" />
-    </div>
-
-    <div class="glass resultBox">
-      <div class="resultTitle">
-        <div class="small">Resultado</div>
-        <div class="small" id="progressTxt">0%</div>
-      </div>
-      <div id="result" class="result">$0</div>
-      <div class="progress" aria-label="Progreso">
-        <div id="progressBar"></div>
-      </div>
-    </div>
-
-    <div class="footer">MetaMaestro · Web app · iPhone friendly</div>
+  <div class="segment">
+    <button id="btnTime" class="active">Calcular Fecha</button>
+    <button id="btnMoney">Calcular Ahorro</button>
   </div>
 
-  <script>
-    let mode = "time";
+  <div class="glass section">
+    <div class="label">Nombre de la meta</div>
+    <input id="goalName" value="Mi Nueva Moto" />
+  </div>
 
-    const totalCost = document.getElementById("totalCost");
-    const currentSavings = document.getElementById("currentSavings");
-    const contribution = document.getElementById("contribution");
-    const result = document.getElementById("result");
-    const progressBar = document.getElementById("progressBar");
-    const progressTxt = document.getElementById("progressTxt");
-    const dynamicLabel = document.getElementById("dynamicLabel");
+  <div class="glass section">
+    <div class="label">Costo total ($)</div>
+    <input id="totalCost" type="number" value="2500000" />
+  </div>
 
-    document.getElementById("btnTime").addEventListener("click", () => switchMode("time"));
-    document.getElementById("btnMoney").addEventListener("click", () => switchMode("money"));
+  <div class="glass section">
+    <div class="label">Ya tenés ahorrado ($)</div>
+    <input id="currentSavings" class="green" type="number" value="500000" />
+  </div>
 
-    function switchMode(m){
-      mode = m;
-      document.getElementById("btnTime").classList.toggle("active", m==="time");
-      document.getElementById("btnMoney").classList.toggle("active", m==="money");
-      dynamicLabel.textContent = (m==="time") ? "Ahorro por semana" : "Ahorro necesario (faltante)";
-      calculate();
-    }
+  <div class="glass section">
+    <div class="label" id="dynamicLabel">Ahorro semanal</div>
+    <input id="contribution" type="number" value="50000" />
+  </div>
 
-    function money(n){
-      return new Intl.NumberFormat("es-AR", {
-        style:"currency", currency:"ARS", maximumFractionDigits:0
-      }).format(n);
-    }
+  <div class="glass section">
+    <div class="label">Resultado</div>
+    <div id="result" class="result">$0</div>
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+  </div>
 
-    function formatDate(d){
-      return d.toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"});
-    }
+  <div class="footer">MetaMaestro · App local · iPhone friendly</div>
 
-    function calculate(){
-      const total = Number(totalCost.value) || 0;
-      const saved = Number(currentSavings.value) || 0;
-      const contrib = Number(contribution.value) || 0;
+</div>
 
-      const remaining = Math.max(0, total - saved);
+<script>
+let mode = "time";
 
-      if(mode === "time"){
-        if(remaining <= 0){
-          result.textContent = "¡Logrado!";
-        } else if(contrib <= 0){
-          result.textContent = "—";
-        } else {
-          const weeks = Math.ceil(remaining / contrib);
-          const end = new Date();
-          end.setDate(end.getDate() + weeks * 7);
-          result.textContent = formatDate(end);
-        }
-      } else {
-        result.textContent = money(remaining);
-      }
+const totalCost = document.getElementById("totalCost");
+const currentSavings = document.getElementById("currentSavings");
+const contribution = document.getElementById("contribution");
+const result = document.getElementById("result");
+const progressBar = document.getElementById("progressBar");
+const dynamicLabel = document.getElementById("dynamicLabel");
 
-      const pct = total > 0 ? Math.min(100, (saved/total)*100) : 0;
-      progressTxt.textContent = pct.toFixed(0) + "%";
-      progressBar.style.width = pct + "%";
-    }
+document.getElementById("btnTime").onclick = () => switchMode("time");
+document.getElementById("btnMoney").onclick = () => switchMode("money");
 
-    ["input","change"].forEach(evt=>{
-      totalCost.addEventListener(evt, calculate);
-      currentSavings.addEventListener(evt, calculate);
-      contribution.addEventListener(evt, calculate);
-    });
+function switchMode(m){
+  mode = m;
+  document.getElementById("btnTime").classList.toggle("active", m==="time");
+  document.getElementById("btnMoney").classList.toggle("active", m==="money");
+  dynamicLabel.textContent = m==="time" ? "Ahorro semanal" : "Ahorro necesario";
+  calculate();
+}
 
-    calculate();
-  </script>
+function money(n){
+  return new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
+}
+
+function calculate(){
+  const total = +totalCost.value || 0;
+  const saved = +currentSavings.value || 0;
+  const contrib = +contribution.value || 0;
+  const remaining = Math.max(0,total - saved);
+
+  if(mode==="time"){
+    const weeks = contrib>0 ? Math.ceil(remaining / contrib) : 0;
+    result.textContent = weeks>0 ? weeks+" semanas" : "—";
+  }else{
+    result.textContent = money(remaining);
+  }
+
+  const progress = total>0 ? Math.min(100,(saved/total)*100) : 0;
+  progressBar.style.width = progress+"%";
+}
+
+["input","change"].forEach(e=>{
+  totalCost.addEventListener(e,calculate);
+  currentSavings.addEventListener(e,calculate);
+  contribution.addEventListener(e,calculate);
+});
+
+calculate();
+</script>
+
 </body>
 </html>
