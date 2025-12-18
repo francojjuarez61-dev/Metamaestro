@@ -1,233 +1,1047 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>MetaMaestro</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MetaMaestro — iOS Glass</title>
+  <meta name="theme-color" content="#0b0c10" />
+  <style>
+    :root{
+      --bg0:#0b0c10;
+      --bg1:#0f1220;
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.16);
+      --stroke2: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.64);
+      --muted2: rgba(255,255,255,.45);
 
-<style>
-:root{
-  --glass-bg: rgba(20,20,24,.55);
-  --glass-brd: rgba(255,255,255,.12);
-  --text: #f4f4f5;
-  --muted: rgba(255,255,255,.55);
-  --red: #ef4444;
-  --green: #22c55e;
-}
+      --accent: #7dd3fc;   /* iOS-ish cyan */
+      --accent2:#a78bfa;   /* soft purple */
+      --good: #34d399;
+      --warn: #fb923c;
+      --bad:  #fb7185;
 
-/* ===== FONDO ROJO CON RESPIRACIÓN ===== */
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(900px 520px at 50% 18%, rgba(239,68,68,.40) 0%, rgba(239,68,68,.12) 42%, transparent 70%),
-    radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,.0) 0%, rgba(0,0,0,.45) 58%, rgba(0,0,0,.88) 100%),
-    linear-gradient(180deg, #07070a, #0b0b10);
-  animation:bgBreath 10s ease-in-out infinite;
-  overflow-x:hidden;
-}
+      --r1: 18px;
+      --r2: 22px;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 30px rgba(0,0,0,.28);
+    }
 
-@keyframes bgBreath{
-  0%,100%{ filter:brightness(.92) contrast(1.05) saturate(1.1); }
-  50%{ filter:brightness(1.06) contrast(1.08) saturate(1.25); }
-}
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 50% 20%, #172554 0%, transparent 55%),
+                  radial-gradient(900px 600px at 20% 90%, #2e1065 0%, transparent 58%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
 
-/* ===== GLASS ===== */
-.glass{
-  background:var(--glass-bg);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border:1px solid var(--glass-brd);
-  border-radius:24px;
-  box-shadow:0 20px 50px rgba(0,0,0,.35);
-}
+    /* Background blobs */
+    .bg{
+      position: fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+    }
+    .blob{
+      position:absolute; border-radius:999px;
+      filter: blur(80px);
+      opacity:.42;
+      animation: float 10s ease-in-out infinite;
+      transform: translate3d(0,0,0);
+    }
+    .blob.a{ width: 70vw; height: 70vw; left:-18vw; top:-25vw; background: rgba(125,211,252,.35); }
+    .blob.b{ width: 64vw; height: 64vw; right:-18vw; bottom:-20vw; background: rgba(167,139,250,.28); animation-delay: 1.5s; }
+    @keyframes float{
+      0%,100%{ transform: translate3d(0,0,0) scale(1); opacity:.34; }
+      50%{ transform: translate3d(0,0,0) scale(1.06); opacity:.55; }
+    }
 
-.container{
-  max-width:480px;
-  margin:0 auto;
-  padding:24px 16px 40px;
-}
+    .app{
+      position:relative; z-index:1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: calc(14px + env(safe-area-inset-top)) 14px calc(22px + env(safe-area-inset-bottom));
+    }
 
-h1{
-  font-size:34px;
-  font-weight:900;
-  margin:8px 0 2px;
-}
-.subtitle{
-  color:var(--muted);
-  margin-bottom:18px;
-}
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 14px 6px 10px;
+      margin-bottom: 10px;
+    }
+    .title{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .title h1{
+      margin:0;
+      font-size: 34px;
+      letter-spacing: -0.03em;
+      font-weight: 900;
+      line-height: 1.05;
+      text-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .title h1 span{
+      background: linear-gradient(90deg, rgba(255,255,255,.95), rgba(125,211,252,.9));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+    .title p{
+      margin:0;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+    .chip{
+      display:none;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke2);
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,.75);
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      white-space: nowrap;
+    }
+    @media (min-width: 860px){
+      .chip{ display:flex; }
+    }
 
-.segment{
-  display:flex;
-  background:rgba(0,0,0,.35);
-  border-radius:14px;
-  padding:4px;
-  margin-bottom:16px;
-}
-.segment button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:transparent;
-  color:var(--muted);
-  font-weight:700;
-}
-.segment button.active{
-  background:var(--red);
-  color:white;
-}
+    .glass{
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: var(--r2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--shadow2);
+    }
 
-.label{
-  font-size:12px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
+    .mode-switch{
+      display:flex;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid var(--stroke2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .mode-btn{
+      flex: 1;
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 10px;
+      color: rgba(255,255,255,.72);
+      background: transparent;
+      font-weight: 900;
+      letter-spacing: .02em;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 8px;
+      user-select:none; -webkit-user-select:none;
+      touch-action: manipulation;
+      transition: transform .12s ease, background .18s ease, color .18s ease;
+    }
+    .mode-btn:active{ transform: scale(.99); }
+    .mode-btn.active{
+      background: rgba(255,255,255,.14);
+      color: rgba(255,255,255,.95);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+    }
 
-input{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid var(--glass-brd);
-  background:rgba(0,0,0,.35);
-  color:white;
-  font-size:16px;
-}
+    .grid{
+      display:grid;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 860px){
+      .grid{
+        grid-template-columns: 0.95fr 1.05fr;
+        align-items:start;
+      }
+    }
 
-input.green{
-  border-color:rgba(34,197,94,.4);
-  color:#bbf7d0;
-}
+    .card{
+      padding: 16px;
+    }
+    @media (min-width: 860px){
+      .card{ padding: 18px; }
+    }
 
-.section{
-  margin-bottom:18px;
-}
+    .card h2{
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: .01em;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .subtle{
+      color: var(--muted2);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+    }
 
-.result{
-  font-size:32px;
-  font-weight:900;
-  margin:10px 0;
-}
+    .fields{ display:grid; gap: 12px; }
+    .field{ display:grid; gap: 8px; }
+    .label{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
 
-.progress{
-  height:14px;
-  background:rgba(255,255,255,.08);
-  border-radius:999px;
-  overflow:hidden;
-}
-.progress div{
-  height:100%;
-  background:linear-gradient(90deg,#dc2626,#ef4444,#f97316);
-  width:0%;
-  transition:width 1s ease;
-}
+    .input, .date, .num{
+      width: 100%;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.28);
+      color: rgba(255,255,255,.92);
+      padding: 0 12px;
+      font-size: 16px;
+      font-weight: 800;
+      outline:none;
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .num{
+      font-variant-numeric: tabular-nums;
+    }
+    .input:focus, .date:focus, .num:focus{
+      border-color: rgba(125,211,252,.55);
+      box-shadow: 0 0 0 2px rgba(125,211,252,.14);
+      background: rgba(0,0,0,.34);
+    }
+    .prefix{
+      position:relative;
+    }
+    .prefix .pfx{
+      position:absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,.45);
+      font-weight: 900;
+    }
+    .prefix input{ padding-left: 28px; }
 
-.footer{
-  text-align:center;
-  font-size:11px;
-  color:rgba(255,255,255,.35);
-  margin-top:24px;
-}
-</style>
+    .seg{
+      display:flex;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .seg button{
+      flex: 1;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 10px;
+      cursor:pointer;
+      background: transparent;
+      color: rgba(255,255,255,.70);
+      font-weight: 900;
+      transition: background .18s ease, transform .12s ease, color .18s ease;
+      user-select:none; -webkit-user-select:none;
+      touch-action: manipulation;
+    }
+    .seg button:active{ transform: scale(.99); }
+    .seg button.active{
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.95);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    }
+
+    .rangeRow{
+      display:flex; align-items:center; gap: 12px;
+    }
+    input[type="range"]{
+      flex: 1;
+      accent-color: var(--accent);
+      height: 18px;
+    }
+    .pill{
+      min-width: 120px;
+      text-align:center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      font-weight: 900;
+      color: rgba(255,255,255,.86);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .topActions{
+      display:flex;
+      justify-content:flex-end;
+      margin: 4px 0 10px;
+    }
+    .refresh{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.80);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .04em;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      user-select:none; -webkit-user-select:none;
+      touch-action: manipulation;
+      box-shadow: var(--shadow2);
+      transition: transform .12s ease, background .18s ease, color .18s ease;
+    }
+    .refresh:active{ transform: scale(.99); }
+    .spin{
+      width: 14px; height: 14px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: rgba(125,211,252,.9);
+      animation: sp 0.8s linear infinite;
+      display:none;
+    }
+    .refresh.loading .spin{ display:inline-block; }
+    @keyframes sp{ to{ transform: rotate(360deg); } }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-40px;
+      background: radial-gradient(360px 220px at 20% 20%, rgba(125,211,252,.18), transparent 60%),
+                  radial-gradient(360px 260px at 85% 0%, rgba(167,139,250,.14), transparent 60%);
+      opacity: .95;
+      pointer-events:none;
+    }
+    .hero > *{ position:relative; z-index:1; }
+
+    .heroLabel{
+      color: rgba(255,255,255,.55);
+      font-weight: 900;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      margin-bottom: 8px;
+    }
+    .heroValue{
+      font-size: clamp(28px, 4.5vw, 44px);
+      font-weight: 950;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: rgba(255,255,255,.98);
+      margin-bottom: 6px;
+      text-shadow: 0 10px 28px rgba(0,0,0,.35);
+    }
+    .heroSub{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    .progressRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .bar{
+      width:100%;
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    }
+    .fill{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(125,211,252,.85), rgba(167,139,250,.75));
+      box-shadow: 0 0 24px rgba(125,211,252,.28);
+      transition: width 1s cubic-bezier(.22,1,.36,1);
+    }
+    .mono{
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat{
+      padding: 14px;
+      border-radius: var(--r1);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      box-shadow: var(--shadow2);
+      text-align:center;
+    }
+    .stat .k{ color: var(--muted); font-weight: 900; font-size: 12px; }
+    .stat .v{ margin-top: 6px; font-weight: 950; font-size: 20px; }
+
+    .invest{
+      border: 1px solid rgba(52,211,153,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(52,211,153,.06));
+    }
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 860px){
+      .row2{ grid-template-columns: 1fr 1fr; }
+    }
+    .callout{
+      border-radius: 16px;
+      border: 1px solid rgba(52,211,153,.25);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+      display:flex;
+      align-items:flex-start;
+      gap: 10px;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius:999px; background: rgba(52,211,153,.95);
+      box-shadow: 0 0 16px rgba(52,211,153,.35);
+      margin-top: 6px;
+      flex:none;
+    }
+
+    .hidden{ display:none !important; }
+
+    footer{
+      margin-top: 16px;
+      padding: 14px 6px 0;
+      color: rgba(255,255,255,.28);
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 900;
+      font-size: 10px;
+      text-align:center;
+    }
+  </style>
 </head>
-
 <body>
-
-<div class="container">
-
-  <h1>Meta<span style="color:#ef4444">Maestro</span></h1>
-  <div class="subtitle">Control total sobre tus finanzas</div>
-
-  <div class="segment">
-    <button id="btnTime" class="active">Calcular Fecha</button>
-    <button id="btnMoney">Calcular Ahorro</button>
+  <div class="bg">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
   </div>
 
-  <div class="glass section">
-    <div class="label">Nombre de la meta</div>
-    <input id="goalName" value="Mi Nueva Moto" />
-  </div>
+  <div class="app">
+    <header>
+      <div class="title">
+        <h1>Meta<span>Maestro</span></h1>
+        <p>Control total sobre tus finanzas.</p>
+      </div>
+      <div class="chip">
+        <span style="opacity:.85">🔒</span>
+        <span>Modo Precisión</span>
+      </div>
+    </header>
 
-  <div class="glass section">
-    <div class="label">Costo total ($)</div>
-    <input id="totalCost" type="number" value="2500000" />
-  </div>
-
-  <div class="glass section">
-    <div class="label">Ya tenés ahorrado ($)</div>
-    <input id="currentSavings" class="green" type="number" value="500000" />
-  </div>
-
-  <div class="glass section">
-    <div class="label" id="dynamicLabel">Ahorro semanal</div>
-    <input id="contribution" type="number" value="50000" />
-  </div>
-
-  <div class="glass section">
-    <div class="label">Resultado</div>
-    <div id="result" class="result">$0</div>
-    <div class="progress">
-      <div id="progressBar"></div>
+    <!-- Selector de modo -->
+    <div class="mode-switch" id="modeSwitch" style="margin: 8px 0 14px;">
+      <button class="mode-btn active" data-mode="time" id="btnModeTime">⏱️ Calcular Fecha</button>
+      <button class="mode-btn" data-mode="money" id="btnModeMoney">💵 Calcular Ahorro</button>
     </div>
+
+    <div class="grid">
+      <!-- Columna Izquierda -->
+      <section class="glass card">
+        <h2>🎯 Datos Base</h2>
+        <div class="fields">
+          <div class="field">
+            <div class="label">Nombre de la Meta</div>
+            <input class="input" id="goalName" type="text" />
+          </div>
+
+          <div class="field">
+            <div class="label">Costo Total ($)</div>
+            <div class="prefix">
+              <span class="pfx">$</span>
+              <input class="num" id="totalCost" type="number" inputmode="numeric" placeholder="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="label">Ya tienes ahorrado ($)</div>
+            <div class="prefix">
+              <span class="pfx" style="color: rgba(52,211,153,.9);">$</span>
+              <input class="num" id="currentSavings" type="number" inputmode="numeric" placeholder="0"
+                     style="border-color: rgba(52,211,153,.22); color: rgba(209,250,229,.92);" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="topActions">
+          <button class="refresh" id="btnRefresh">
+            <span class="spin" aria-hidden="true"></span>
+            <span id="refreshText">Actualizar Proyección</span>
+          </button>
+        </div>
+
+        <!-- Resultado principal -->
+        <section class="glass card hero" id="heroCard">
+          <div class="heroLabel" id="heroTopLabel">Fecha Estimada</div>
+          <div class="heroValue" id="heroValue">—</div>
+          <div class="heroSub" id="heroSub">—</div>
+
+          <div class="progressRow">
+            <div class="label" style="margin:0;">Progreso de Capital</div>
+            <div class="mono" style="font-weight:950; color: rgba(125,211,252,.9);" id="progressPct">0.0%</div>
+          </div>
+          <div class="bar" aria-label="Progreso">
+            <div class="fill" id="progressFill"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:10px; color: var(--muted2); font-weight:800; font-size:12px;">
+            <div class="mono" id="labelHoy">Hoy: $0</div>
+            <div class="mono" id="labelMeta">Meta: $0</div>
+          </div>
+        </section>
+
+        <!-- Esfuerzo o Fecha límite -->
+        <section class="glass card" style="margin-top:14px;">
+          <h2 id="effortTitle">📈 Tu Esfuerzo</h2>
+
+          <div class="fields">
+            <!-- Contenido dinámico -->
+            <div class="field" id="timeBox">
+              <div class="label">¿Cuánto guardarás por <span id="freqWord" style="color: rgba(255,255,255,.92); font-weight:950;">semana</span>?</div>
+              <div class="prefix">
+                <span class="pfx">$</span>
+                <input class="num" id="contribution" type="number" inputmode="numeric" placeholder="0"
+                       style="font-size:18px; font-weight:950;" />
+              </div>
+            </div>
+
+            <div class="field hidden" id="moneyBox">
+              <div class="label">¿Cuándo quieres tenerlo?</div>
+              <input class="date" id="targetDate" type="date" />
+              <div style="color: var(--muted2); font-weight:700; font-size:12px;">Selecciona la fecha exacta en el calendario.</div>
+            </div>
+
+            <div class="seg" role="tablist" aria-label="Frecuencia">
+              <button id="btnWeekly" class="active" type="button">Por Semana</button>
+              <button id="btnMonthly" type="button">Por Mes</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Turbo -->
+        <section class="glass card" style="margin-top:14px;">
+          <h2>⚡ Modo Turbo</h2>
+          <div class="subtle" style="margin-bottom:10px;">Ayuda extra por período</div>
+
+          <div class="rangeRow">
+            <input id="extraRange" type="range" min="0" max="0" step="100" value="0" />
+            <div class="pill mono" id="extraPill">+ $0 / sem</div>
+          </div>
+        </section>
+
+        <!-- Stats -->
+        <div class="stats" style="margin-top:14px;">
+          <div class="stat glass">
+            <div class="k">Duración Plan</div>
+            <div class="v mono" id="statPeriods">0</div>
+            <div style="color: var(--muted2); font-weight:800; font-size:12px;" id="statUnit">Sems</div>
+          </div>
+          <div class="stat glass">
+            <div class="k">Falta Juntar</div>
+            <div class="v mono" id="statRemaining">$0</div>
+            <div style="color: var(--muted2); font-weight:800; font-size:12px;">Restante</div>
+          </div>
+        </div>
+
+        <!-- Inversión -->
+        <section class="glass card invest" style="margin-top:14px;">
+          <h2>📊 Simulador de Rendimiento (TNA)</h2>
+
+          <div class="row2">
+            <div class="field" style="margin:0;">
+              <div class="label">Tasa Anual (Plazo Fijo / MP)</div>
+              <div class="prefix">
+                <span class="pfx">%</span>
+                <input class="num" id="tna" type="number" inputmode="decimal" placeholder="0"
+                       style="text-align:center; font-size:22px; font-weight:950; color: rgba(209,250,229,.92); border-color: rgba(52,211,153,.25);" />
+              </div>
+            </div>
+
+            <div>
+              <div class="glass" style="padding:12px; border-radius: 16px; border-color: rgba(52,211,153,.22); background: rgba(0,0,0,.18);">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                  <div class="label" style="margin:0; color: rgba(209,250,229,.78);">Intereses Ganados</div>
+                  <div class="mono" style="font-weight:950; color: rgba(52,211,153,.95);" id="interestGained">+ $0</div>
+                </div>
+              </div>
+              <div style="color: var(--muted2); font-weight:700; font-size:12px; margin-top:8px; text-align:right;">
+                Dinero “gratis” por mantener la plata invertida mientras ahorras.
+              </div>
+            </div>
+          </div>
+
+          <div class="callout hidden" id="timeSavedBox" style="margin-top:12px;">
+            <div class="dot"></div>
+            <div style="font-size:13px; color: rgba(209,250,229,.92); font-weight:800;">
+              Gracias a los intereses, podrías comprarla
+              <span style="color: rgba(255,255,255,.95); font-weight:950;" id="timeSavedText">0 semanas antes</span>
+              de lo planeado.
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <footer>MetaMaestro • iOS Glass • Datos guardados automáticamente</footer>
   </div>
 
-  <div class="footer">MetaMaestro · App local · iPhone friendly</div>
+  <script>
+    // =========================
+    // Storage + Defaults
+    // =========================
+    const KEY = "metamaestro_ios_v1";
 
-</div>
+    const $ = (id) => document.getElementById(id);
 
-<script>
-let mode = "time";
+    const state = {
+      mode: "time", // time | money
+      goalName: "Mi Nueva Moto",
+      totalCost: 2500000,
+      currentSavings: 500000,
+      contribution: 50000,
+      targetDate: "",
+      frequency: "weekly", // weekly | monthly
+      extra: 0,
+      tna: 40
+    };
 
-const totalCost = document.getElementById("totalCost");
-const currentSavings = document.getElementById("currentSavings");
-const contribution = document.getElementById("contribution");
-const result = document.getElementById("result");
-const progressBar = document.getElementById("progressBar");
-const dynamicLabel = document.getElementById("dynamicLabel");
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        if(!data || typeof data !== "object") return;
 
-document.getElementById("btnTime").onclick = () => switchMode("time");
-document.getElementById("btnMoney").onclick = () => switchMode("money");
+        state.mode = (data.mode === "money") ? "money" : "time";
+        state.goalName = String(data.goalName ?? state.goalName);
+        state.totalCost = num(data.totalCost, state.totalCost);
+        state.currentSavings = num(data.currentSavings, state.currentSavings);
+        state.contribution = num(data.contribution, state.contribution);
+        state.targetDate = String(data.targetDate ?? "");
+        state.frequency = (data.frequency === "monthly") ? "monthly" : "weekly";
+        state.extra = num(data.extra, 0);
+        state.tna = num(data.tna, state.tna);
+      }catch{}
+    }
 
-function switchMode(m){
-  mode = m;
-  document.getElementById("btnTime").classList.toggle("active", m==="time");
-  document.getElementById("btnMoney").classList.toggle("active", m==="money");
-  dynamicLabel.textContent = m==="time" ? "Ahorro semanal" : "Ahorro necesario";
-  calculate();
-}
+    function saveState(){
+      localStorage.setItem(KEY, JSON.stringify(state));
+    }
 
-function money(n){
-  return new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
-}
+    function num(v, fallback=0){
+      const n = Number(v);
+      return Number.isFinite(n) ? n : fallback;
+    }
 
-function calculate(){
-  const total = +totalCost.value || 0;
-  const saved = +currentSavings.value || 0;
-  const contrib = +contribution.value || 0;
-  const remaining = Math.max(0,total - saved);
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
-  if(mode==="time"){
-    const weeks = contrib>0 ? Math.ceil(remaining / contrib) : 0;
-    result.textContent = weeks>0 ? weeks+" semanas" : "—";
-  }else{
-    result.textContent = money(remaining);
-  }
+    // =========================
+    // Formatting
+    // =========================
+    function formatMoney(amount){
+      if(amount === undefined || amount === null || Number.isNaN(amount)) return "$0";
+      return new Intl.NumberFormat("es-AR", {
+        style:"currency", currency:"ARS", minimumFractionDigits:0, maximumFractionDigits:0
+      }).format(amount);
+    }
 
-  const progress = total>0 ? Math.min(100,(saved/total)*100) : 0;
-  progressBar.style.width = progress+"%";
-}
+    function formatDate(date){
+      if(!date || Number.isNaN(date.getTime())) return "Fecha desconocida";
+      return date.toLocaleDateString("es-ES", { day:"numeric", month:"long", year:"numeric" });
+    }
 
-["input","change"].forEach(e=>{
-  totalCost.addEventListener(e,calculate);
-  currentSavings.addEventListener(e,calculate);
-  contribution.addEventListener(e,calculate);
-});
+    function todayAtZero(){
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      return d;
+    }
 
-calculate();
-</script>
+    // =========================
+    // Calculation (same logic as your React)
+    // =========================
+    function calculate(){
+      const safeTotal = num(state.totalCost, 0);
+      const safeSavings = num(state.currentSavings, 0);
+      const safeExtra = num(state.extra, 0);
+      const safeTna = num(state.tna, 0);
 
+      const remaining = Math.max(0, safeTotal - safeSavings);
+
+      let periods = 0;
+      let baseContributionNeeded = 0;
+      let endDate = new Date();
+      let isAchievable = true;
+
+      if(state.mode === "time"){
+        const safeContribution = num(state.contribution, 0);
+        const effectiveContribution = safeContribution + safeExtra; // total efectivo por periodo
+        baseContributionNeeded = effectiveContribution;
+
+        if(effectiveContribution > 0){
+          periods = Math.ceil(remaining / effectiveContribution);
+          if(periods > 1200) periods = 1200;
+        } else {
+          isAchievable = false;
+        }
+
+        const today = new Date();
+        endDate = new Date(today);
+        if(state.frequency === "weekly"){
+          endDate.setDate(today.getDate() + (periods * 7));
+        } else {
+          endDate.setMonth(today.getMonth() + periods);
+        }
+      } else {
+        const today = todayAtZero();
+        const target = new Date(state.targetDate);
+        endDate = target;
+
+        if(target > today){
+          const diffTime = Math.abs(target - today);
+          const diffDays = Math.ceil(diffTime / (1000*60*60*24));
+
+          if(state.frequency === "weekly"){
+            periods = Math.ceil(diffDays / 7);
+          } else {
+            periods = Math.ceil(diffDays / 30.44);
+          }
+
+          if(periods > 0){
+            baseContributionNeeded = (remaining / periods) - safeExtra;
+            if(baseContributionNeeded < 0) baseContributionNeeded = 0;
+          }
+        } else {
+          isAchievable = false;
+        }
+      }
+
+      // Investment projection (common)
+      const periodsPerYear = (state.frequency === "weekly") ? 52 : 12;
+      const periodicRate = (safeTna / 100) / periodsPerYear;
+
+      let projectedTotalWithInterest = safeSavings;
+      let projectedInterestOnly = 0;
+
+      const totalEffective = (state.mode === "time")
+        ? baseContributionNeeded
+        : (baseContributionNeeded + safeExtra);
+
+      for(let i=0; i < periods; i++){
+        const interest = projectedTotalWithInterest * periodicRate;
+        projectedInterestOnly += interest;
+        projectedTotalWithInterest += interest + totalEffective;
+      }
+
+      // timeSaved simulation
+      let simSavings = safeSavings;
+      let fastPeriods = 0;
+      while(simSavings < safeTotal && fastPeriods < 1200 && totalEffective > 0){
+        simSavings += (simSavings * periodicRate) + totalEffective;
+        fastPeriods++;
+      }
+      const timeSavedInvesting = Math.max(0, periods - fastPeriods);
+
+      const progress = safeTotal > 0 ? Math.min(100, (safeSavings / safeTotal) * 100) : 0;
+
+      return {
+        remaining,
+        effectiveContribution: totalEffective,
+        baseContributionNeeded,
+        periods,
+        endDate,
+        progress,
+        isAchievable: isAchievable && remaining > 0,
+        investment: {
+          timeSavedInvesting,
+          extraMoney: projectedInterestOnly,
+          totalWithInvestment: projectedTotalWithInterest
+        }
+      };
+    }
+
+    // =========================
+    // UI wiring
+    // =========================
+    const ui = {
+      goalName: $("goalName"),
+      totalCost: $("totalCost"),
+      currentSavings: $("currentSavings"),
+      contribution: $("contribution"),
+      targetDate: $("targetDate"),
+      btnModeTime: $("btnModeTime"),
+      btnModeMoney: $("btnModeMoney"),
+      btnWeekly: $("btnWeekly"),
+      btnMonthly: $("btnMonthly"),
+      extraRange: $("extraRange"),
+      extraPill: $("extraPill"),
+      tna: $("tna"),
+
+      effortTitle: $("effortTitle"),
+      timeBox: $("timeBox"),
+      moneyBox: $("moneyBox"),
+      freqWord: $("freqWord"),
+
+      heroTopLabel: $("heroTopLabel"),
+      heroValue: $("heroValue"),
+      heroSub: $("heroSub"),
+      progressPct: $("progressPct"),
+      progressFill: $("progressFill"),
+      labelHoy: $("labelHoy"),
+      labelMeta: $("labelMeta"),
+
+      statPeriods: $("statPeriods"),
+      statUnit: $("statUnit"),
+      statRemaining: $("statRemaining"),
+
+      interestGained: $("interestGained"),
+      timeSavedBox: $("timeSavedBox"),
+      timeSavedText: $("timeSavedText"),
+
+      btnRefresh: $("btnRefresh"),
+      refreshText: $("refreshText")
+    };
+
+    function setMode(mode){
+      state.mode = (mode === "money") ? "money" : "time";
+      saveState();
+      syncUI();
+      requestRecalc();
+    }
+
+    function setFrequency(freq){
+      state.frequency = (freq === "monthly") ? "monthly" : "weekly";
+      saveState();
+      syncUI();
+      requestRecalc();
+    }
+
+    function setExtra(val){
+      state.extra = clamp(num(val, 0), 0, extraMax());
+      saveState();
+      syncUI();
+      requestRecalc();
+    }
+
+    function extraMax(){
+      // similar to totalCost / 20, but safe
+      const total = Math.max(0, num(state.totalCost, 0));
+      return Math.max(0, Math.floor(total / 20));
+    }
+
+    function syncUI(){
+      // Inputs
+      ui.goalName.value = state.goalName ?? "";
+      ui.totalCost.value = state.totalCost ? String(state.totalCost) : "";
+      ui.currentSavings.value = state.currentSavings ? String(state.currentSavings) : "";
+      ui.contribution.value = state.contribution ? String(state.contribution) : "";
+
+      // Ensure targetDate default (6 months ahead) if empty/invalid
+      if(!state.targetDate || Number.isNaN(new Date(state.targetDate).getTime())){
+        const d = new Date();
+        d.setMonth(d.getMonth() + 6);
+        state.targetDate = d.toISOString().split("T")[0];
+        saveState();
+      }
+      ui.targetDate.value = state.targetDate;
+
+      // Mode UI
+      ui.btnModeTime.classList.toggle("active", state.mode === "time");
+      ui.btnModeMoney.classList.toggle("active", state.mode === "money");
+
+      ui.timeBox.classList.toggle("hidden", state.mode !== "time");
+      ui.moneyBox.classList.toggle("hidden", state.mode !== "money");
+
+      ui.effortTitle.textContent = (state.mode === "time") ? "📈 Tu Esfuerzo" : "📅 Tu Fecha Límite";
+
+      // Frequency UI
+      ui.btnWeekly.classList.toggle("active", state.frequency === "weekly");
+      ui.btnMonthly.classList.toggle("active", state.frequency === "monthly");
+      ui.freqWord.textContent = (state.frequency === "weekly") ? "semana" : "mes";
+      ui.statUnit.textContent = (state.frequency === "weekly") ? "Sems" : "Meses";
+
+      // Extra slider max + pill
+      ui.extraRange.max = String(extraMax());
+      ui.extraRange.value = String(clamp(state.extra, 0, extraMax()));
+      ui.extraPill.textContent = `+ ${formatMoney(state.extra)} / ${(state.frequency === "weekly") ? "sem" : "mes"}`;
+
+      // TNA
+      ui.tna.value = state.tna ? String(state.tna) : "";
+    }
+
+    function renderResults(res){
+      // Top label changes with mode
+      ui.heroTopLabel.textContent = (state.mode === "time") ? "Fecha Estimada" : "Necesitas Ahorrar";
+
+      // Main headline
+      if(res.isAchievable){
+        if(state.mode === "time"){
+          ui.heroValue.textContent = formatDate(res.endDate);
+          ui.heroSub.textContent = `Para lograr "${state.goalName}" con tu plan actual.`;
+        } else {
+          const unit = (state.frequency === "weekly") ? "sem" : "mes";
+          ui.heroValue.textContent = `${formatMoney(res.baseContributionNeeded)} / ${unit}`;
+          ui.heroSub.textContent = `Para llegar el ${formatDate(res.endDate)}.`;
+        }
+      } else {
+        if(res.remaining <= 0){
+          ui.heroValue.textContent = "¡Logrado!";
+          ui.heroSub.textContent = "Ya alcanzaste (o superaste) la meta con tu capital actual.";
+        } else {
+          ui.heroValue.textContent = "Meta Inalcanzable";
+          ui.heroSub.textContent = (state.mode === "time")
+            ? "Ajustá tu aporte (o Turbo) para poder calcular una fecha."
+            : "La fecha elegida es inválida o está en el pasado.";
+        }
+      }
+
+      // Progress
+      const pct = (res.progress || 0);
+      ui.progressPct.textContent = `${pct.toFixed(1)}%`;
+      ui.progressFill.style.width = `${pct}%`;
+
+      ui.labelHoy.textContent = `Hoy: ${formatMoney(num(state.currentSavings,0))}`;
+      ui.labelMeta.textContent = `Meta: ${formatMoney(num(state.totalCost,0))}`;
+
+      // Stats
+      ui.statPeriods.textContent = String(res.periods || 0);
+      ui.statRemaining.textContent = formatMoney(res.remaining);
+
+      // Interest
+      ui.interestGained.textContent = `+ ${formatMoney(res.investment.extraMoney)}`;
+
+      // Time saved only if mode time and tna>0 and timeSaved>0 and achievable
+      const showTimeSaved = (state.mode === "time")
+        && (num(state.tna,0) > 0)
+        && (res.investment.timeSavedInvesting > 0)
+        && res.isAchievable;
+
+      ui.timeSavedBox.classList.toggle("hidden", !showTimeSaved);
+      if(showTimeSaved){
+        const unit = (state.frequency === "weekly") ? "semanas" : "meses";
+        ui.timeSavedText.textContent = ` ${res.investment.timeSavedInvesting} ${unit} antes`;
+      }
+    }
+
+    // Debounced calc (like your React)
+    let calcTimer = null;
+    function requestRecalc(){
+      if(calcTimer) clearTimeout(calcTimer);
+      calcTimer = setTimeout(() => {
+        const res = calculate();
+        renderResults(res);
+      }, 120);
+    }
+
+    // Manual refresh animation
+    function manualRefresh(){
+      ui.btnRefresh.classList.add("loading");
+      ui.refreshText.textContent = "Recalculando...";
+      setTimeout(() => {
+        const res = calculate();
+        renderResults(res);
+        ui.btnRefresh.classList.remove("loading");
+        ui.refreshText.textContent = "Actualizar Proyección";
+      }, 600);
+    }
+
+    // =========================
+    // Events
+    // =========================
+    ui.btnModeTime.addEventListener("click", () => setMode("time"));
+    ui.btnModeMoney.addEventListener("click", () => setMode("money"));
+
+    ui.btnWeekly.addEventListener("click", () => setFrequency("weekly"));
+    ui.btnMonthly.addEventListener("click", () => setFrequency("monthly"));
+
+    ui.goalName.addEventListener("input", (e) => {
+      state.goalName = e.target.value || "";
+      saveState();
+      requestRecalc();
+    });
+
+    ui.totalCost.addEventListener("input", (e) => {
+      state.totalCost = num(e.target.value, 0);
+      // update extra max when total changes
+      if(state.extra > extraMax()) state.extra = extraMax();
+      saveState();
+      syncUI();
+      requestRecalc();
+    });
+
+    ui.currentSavings.addEventListener("input", (e) => {
+      state.currentSavings = num(e.target.value, 0);
+      saveState();
+      requestRecalc();
+    });
+
+    ui.contribution.addEventListener("input", (e) => {
+      state.contribution = num(e.target.value, 0);
+      saveState();
+      requestRecalc();
+    });
+
+    ui.targetDate.addEventListener("input", (e) => {
+      state.targetDate = e.target.value || "";
+      saveState();
+      requestRecalc();
+    });
+
+    ui.extraRange.addEventListener("input", (e) => {
+      setExtra(e.target.value);
+    });
+
+    ui.tna.addEventListener("input", (e) => {
+      state.tna = num(e.target.value, 0);
+      saveState();
+      requestRecalc();
+    });
+
+    ui.btnRefresh.addEventListener("click", manualRefresh);
+
+    // =========================
+    // Init
+    // =========================
+    loadState();
+    syncUI();
+    requestRecalc();
+  </script>
 </body>
 </html>
